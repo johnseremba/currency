@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "symbols": {
+    "AED": "United Arab Emirates Dirham",
+    "RUB": "Russian Ruble",
+    "RWF": "Rwandan Franc",
+    "TZS": "Tanzanian Shilling",
+    "UGX": "Ugandan Shilling",
+    "USD": "United States Dollar"
+  }
+}
