@@ -2,6 +2,7 @@ package com.johnseremba.currency.data.api
 
 import com.johnseremba.currency.data.api.model.ConvertApiModel
 import com.johnseremba.currency.data.api.model.CurrencySymbolsApiModel
+import com.johnseremba.currency.data.api.model.LatestRatesApiModel
 import com.johnseremba.currency.data.api.model.TimeSeriesApiModel
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -25,4 +26,10 @@ interface CurrencyService {
         @Query("base") baseCurrency: String,
         @Query("symbols") targetCurrency: String
     ): TimeSeriesApiModel
+
+    @GET("/fixer/latest")
+    suspend fun getLatestRates(
+        @Query("base") baseCurrency: String,
+        @Query("symbols") currencies: String
+    ): LatestRatesApiModel
 }
