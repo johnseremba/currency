@@ -1,5 +1,6 @@
 package com.johnseremba.currency.di
 
+import com.google.gson.GsonBuilder
 import com.johnseremba.currency.BuildConfig
 import com.johnseremba.currency.data.api.interceptor.AuthInterceptor
 import dagger.Module
@@ -45,9 +46,13 @@ object HiltNetworkModule {
     @Provides
     @Singleton
     fun provideRetrofitBuilder(okHttpClient: OkHttpClient): Retrofit.Builder {
+        val gson = GsonBuilder()
+            .setDateFormat("yyyy-MM-dd")
+            .create()
+
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
     }
 }

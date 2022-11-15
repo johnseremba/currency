@@ -1,5 +1,7 @@
 package com.johnseremba.currency.base
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.johnseremba.currency.data.api.CurrencyService
 import javax.inject.Inject
 import okhttp3.OkHttpClient
@@ -31,6 +33,10 @@ open class MockWebServerBaseTest {
     fun getServerUrl() = mockWebServer.url("").toString()
 
     private fun createCurrencyService(): CurrencyService {
+        val gson: Gson = GsonBuilder()
+            .setDateFormat("yyyy-MM-dd")
+            .create()
+
         return Retrofit.Builder()
             .baseUrl(getServerUrl())
             .client(okHttpClient)

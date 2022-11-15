@@ -1,0 +1,14 @@
+{
+  "date": "2022-11-15",
+  "info": {
+    "rate": 3879.573437,
+    "timestamp": 1668537003
+  },
+  "query": {
+    "amount": 85000.00,
+    "from": "EUR",
+    "to": "UGX"
+  },
+  "result": 329763742.145,
+  "success": true
+}
