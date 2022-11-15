@@ -17,6 +17,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def fixerApiKey = project.hasProperty("propertyFixerApiKey") ? "\"${project.properties["propertyFixerApiKey"]}\"" : "\"\""
+        buildConfigField "String", "FIXER_API_KEY", fixerApiKey
     }
 
     buildTypes {
@@ -37,6 +40,8 @@ android {
 }
 
 ext {
+    okHttp = '4.10.0'
+    retrofit = '2.9.0'
     hilt = '2.44'
 }
 
@@ -50,7 +55,13 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt"
     kapt "com.google.dagger:hilt-compiler:$hilt"
 
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttp"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit"
+
     testImplementation 'junit:junit:4.13.2'
+    testImplementation "com.google.dagger:hilt-android-testing:$hilt"
+    kaptTest "com.google.dagger:hilt-android-compiler:$hilt"
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
