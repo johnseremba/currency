@@ -7,7 +7,7 @@
     android:layout_marginTop="@dimen/margin_2x">
 
     <TextView
-        android:id="@+id/tv_date"
+        android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_2x"
@@ -18,13 +18,13 @@
         tools:text="2022-11-13" />
 
     <TextView
-        android:id="@+id/tv_amount"
+        android:id="@+id/tv_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_2x"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_date"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title"
         tools:text="UGX 1000" />
 
     <View
@@ -35,5 +35,5 @@
         android:background="@color/gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_amount" />
+        app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
 </androidx.constraintlayout.widget.ConstraintLayout>

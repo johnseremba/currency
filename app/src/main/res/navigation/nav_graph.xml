@@ -12,12 +12,20 @@
         tools:layout="@layout/fragment_currency_conversion">
         <action
             android:id="@+id/action_conversion_fragment_to_detail_fragment"
-            app:destination="@id/detail_fragment" />
+            app:destination="@id/detail_fragment">
+            <argument
+                android:name="currency_info"
+                app:argType="com.johnseremba.currency.ui.detail.DetailNavigationData" />
+        </action>
     </fragment>
 
     <fragment
         android:id="@+id/detail_fragment"
         android:name="com.johnseremba.currency.ui.detail.DetailFragment"
         android:label="DetailFragment"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="currency_info"
+            app:argType="com.johnseremba.currency.ui.detail.DetailNavigationData" />
+    </fragment>
 </navigation>

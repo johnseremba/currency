@@ -1,0 +1,68 @@
+package com.johnseremba.currency.ui.detail
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.johnseremba.currency.domain.HistoricalDataUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import java.math.RoundingMode.HALF_EVEN
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
+
+@HiltViewModel
+class DetailViewModel @Inject constructor(
+    private val historicalDataUseCase: HistoricalDataUseCase
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(DetailUiState())
+    val uiState = _uiState.asStateFlow()
+
+    fun fetchHistoricalData(baseCurrency: String, targetCurrency: String) {
+        if (uiState.value.historicalData.isNotEmpty()) {
+            Log.v(TAG, "Historical data already fetched, ignoring!")
+            return
+        }
+
+        historicalDataUseCase(baseCurrency, targetCurrency)
+            .onStart { updateState { copy(isLoading = true) } }
+            .onCompletion { updateState { copy(isLoading = false) } }
+            .onEach { result ->
+                when {
+                    result.isSuccess -> {
+                        val dateFormat = DateTimeFormatter.ofPattern("dd MMM yyyy")
+                        val convertedResult = result.getOrNull()?.map {
+                            val date = it.first
+                            val stringDate = date.format(dateFormat)
+                            Pair(stringDate, it.second.setScale(CONVERSION_SCALE, HALF_EVEN))
+                        } ?: emptyList()
+
+                        updateState { copy(historicalData = convertedResult) }
+                    }
+                    result.isFailure -> {
+                        Log.d(TAG, "Failed to historical data : ${result.exceptionOrNull()}")
+                        result.exceptionOrNull()?.printStackTrace()
+                        updateState { copy(isError = true, errorMsg = result.exceptionOrNull()?.message.orEmpty()) }
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun updateState(reducer: DetailUiState.() -> DetailUiState) {
+        _uiState.update {
+            it.reducer()
+        }
+    }
+
+    companion object {
+        private const val TAG = "DetailViewModel"
+        const val CONVERSION_SCALE = 6
+    }
+}

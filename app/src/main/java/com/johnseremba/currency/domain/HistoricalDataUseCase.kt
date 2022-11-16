@@ -4,16 +4,19 @@ import com.johnseremba.currency.data.repository.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class HistoricalDataUseCase @Inject constructor(private val repository: Repository) {
-    suspend operator fun invoke(
+    operator fun invoke(
         baseCurrency: String,
         targetCurrency: String
-    ): Result<List<Pair<LocalDate, BigDecimal>>> {
+    ): Flow<Result<List<Pair<LocalDate, BigDecimal>>>> = flow {
 
         val endDate: LocalDate = LocalDate.now()
-        val startDate: LocalDate = endDate.minusDays(3)
+        val startDate: LocalDate = endDate.minusDays(2)
 
-        return repository.getHistoricalData(startDate, endDate, baseCurrency, targetCurrency)
+        val result = repository.getHistoricalData(startDate, endDate, baseCurrency, targetCurrency)
+        emit(result)
     }
 }
