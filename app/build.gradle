@@ -41,12 +41,17 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 ext {
     okHttp = '4.10.0'
     retrofit = '2.9.0'
     hilt = '2.44'
+    navigationComponent = '2.5.3'
 }
 
 dependencies {
