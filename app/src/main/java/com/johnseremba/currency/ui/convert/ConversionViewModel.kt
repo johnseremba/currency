@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.johnseremba.currency.domain.ConvertCurrencyUseCase
 import com.johnseremba.currency.domain.SupportedCurrenciesUseCase
+import com.johnseremba.currency.ui.detail.DetailNavigationData
 import com.johnseremba.currency.domain.helpers.CurrencyFormatHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -113,6 +114,13 @@ class ConversionViewModel @Inject constructor(
 
     fun setTargetCurrency(currency: String) {
         updateState { copy(targetCurrency = currency) }
+    }
+
+    fun getDetailNavigationData(): DetailNavigationData {
+        return DetailNavigationData(
+            baseCurrency = uiState.value.baseCurrency,
+            targetCurrency = uiState.value.targetCurrency
+        )
     }
 
     private fun updateState(reducer: ConversionUiState.() -> ConversionUiState) {

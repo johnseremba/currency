@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.johnseremba.currency.domain.HistoricalDataUseCase
+import com.johnseremba.currency.domain.PopularCurrenciesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.math.RoundingMode.HALF_EVEN
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,8 @@ import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val historicalDataUseCase: HistoricalDataUseCase
+    private val historicalDataUseCase: HistoricalDataUseCase,
+    private val popularCurrenciesUseCase: PopularCurrenciesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
@@ -40,19 +41,45 @@ class DetailViewModel @Inject constructor(
                         val convertedResult = result.getOrNull()?.map {
                             val date = it.first
                             val stringDate = date.format(dateFormat)
-                            Pair(stringDate, it.second.setScale(CONVERSION_SCALE, HALF_EVEN))
+                            Pair(stringDate, it.second)
                         } ?: emptyList()
 
                         updateState { copy(historicalData = convertedResult) }
                     }
                     result.isFailure -> {
-                        Log.d(TAG, "Failed to historical data : ${result.exceptionOrNull()}")
-                        result.exceptionOrNull()?.printStackTrace()
-                        updateState { copy(isError = true, errorMsg = result.exceptionOrNull()?.message.orEmpty()) }
+                        handleError(result.exceptionOrNull())
                     }
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    fun fetchPopularCurrencies(baseCurrency: String) {
+        if (uiState.value.popularCurrencies.isNotEmpty()) {
+            Log.v(TAG, "Popular currency data already fetched, ignoring!")
+            return
+        }
+
+        popularCurrenciesUseCase.invoke(baseCurrency)
+            .onStart { updateState { copy(isLoading = true) } }
+            .onCompletion { updateState { copy(isLoading = false) } }
+            .onEach { result ->
+                when {
+                    result.isSuccess -> {
+                        updateState { copy(popularCurrencies = result.getOrElse { emptyList() }) }
+                    }
+                    result.isFailure -> {
+                        handleError(result.exceptionOrNull())
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun handleError(throwable: Throwable?) {
+        Log.d(TAG, "Failed to fetch data : $throwable")
+        throwable?.printStackTrace()
+        updateState { copy(isError = true, errorMsg = throwable?.message.orEmpty()) }
     }
 
     private fun updateState(reducer: DetailUiState.() -> DetailUiState) {
@@ -63,6 +90,5 @@ class DetailViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "DetailViewModel"
-        const val CONVERSION_SCALE = 6
     }
 }

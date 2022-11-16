@@ -64,7 +64,8 @@ class CurrencyConversionFragment : Fragment() {
             }
 
             btnDetails.setOnClickListener {
-                findNavController().navigate(R.id.action_conversion_fragment_to_detail_fragment, )
+                val action = CurrencyConversionFragmentDirections.actionConversionFragmentToDetailFragment(viewModel.getDetailNavigationData())
+                findNavController().navigate(action)
             }
 
             spinnerFrom.onItemSelectedListener = object : OnItemSelectedListener {

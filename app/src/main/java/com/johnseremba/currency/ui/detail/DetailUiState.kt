@@ -6,5 +6,6 @@ data class DetailUiState(
     val isLoading: Boolean = false,
     val isError: Boolean = false,
     val errorMsg: String = "",
-    val historicalData: List<Pair<String, BigDecimal>> = emptyList()
+    val historicalData: List<Pair<String, BigDecimal>> = emptyList(),
+    val popularCurrencies: List<Pair<String, BigDecimal>> = emptyList()
 )

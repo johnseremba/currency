@@ -26,6 +26,7 @@ class DetailFragment : Fragment() {
 
     private val viewModel: DetailViewModel by viewModels()
     private val historicalDataAdapter = HistoricalDataAdapter()
+    private val popularCurrenciesAdapter = HistoricalDataAdapter()
 
     private val currencyData: DetailNavigationData by lazy {
         navArgs<DetailFragmentArgs>().value.currencyInfo
@@ -49,11 +50,13 @@ class DetailFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         viewModel.fetchHistoricalData(currencyData.baseCurrency, currencyData.targetCurrency)
+        viewModel.fetchPopularCurrencies(currencyData.baseCurrency)
     }
 
     private fun initUi() = with(binding) {
         labelHistorical.text = getString(R.string.label_historical_data, "${currencyData.baseCurrency} -> ${currencyData.targetCurrency}")
         rvHistorical.adapter = historicalDataAdapter
+        binding.rvPopular.adapter = popularCurrenciesAdapter
     }
 
     private fun initStateObservers() {
@@ -65,6 +68,7 @@ class DetailFragment : Fragment() {
                         state.isError -> handleError(state.errorMsg)
                         else -> {
                             handleHistoricalData(state.historicalData)
+                            handlePopularCurrencyData(state.popularCurrencies)
                         }
                     }
                 }
@@ -82,6 +86,10 @@ class DetailFragment : Fragment() {
 
     private fun handleHistoricalData(historicalData: List<Pair<String, BigDecimal>>) {
         historicalDataAdapter.submitList(historicalData)
+    }
+
+    private fun handlePopularCurrencyData(popularCurrencies: List<Pair<String, BigDecimal>>) {
+        popularCurrenciesAdapter.submitList(popularCurrencies)
     }
 
     override fun onDestroyView() {
