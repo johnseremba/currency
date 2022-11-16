@@ -40,7 +40,7 @@ open class MockWebServerBaseTest {
         return Retrofit.Builder()
             .baseUrl(getServerUrl())
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(CurrencyService::class.java)
     }
