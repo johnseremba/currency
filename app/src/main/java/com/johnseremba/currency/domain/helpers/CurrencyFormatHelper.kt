@@ -4,9 +4,10 @@ import java.math.BigDecimal
 import java.math.RoundingMode.HALF_EVEN
 
 object CurrencyFormatHelper {
-    private const val DECIMAL_PLACES = 6
+    private const val DECIMAL_PLACES = 3
 
-    fun formatAmount(amount: BigDecimal): String {
+    fun formatAmount(amount: BigDecimal?): String {
+        if (amount == null) return BigDecimal(0).getScaledAmount().toString()
         return amount.getScaledAmount().toString()
     }
 

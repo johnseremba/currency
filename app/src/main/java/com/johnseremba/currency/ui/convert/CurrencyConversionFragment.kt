@@ -1,9 +1,12 @@
 package com.johnseremba.currency.ui.convert
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -11,7 +14,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.johnseremba.currency.R
 import com.johnseremba.currency.databinding.FragmentCurrencyConversionBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -45,7 +50,50 @@ class CurrencyConversionFragment : Fragment() {
         with(binding) {
             spinnerFrom.adapter = currenciesAdapter
             spinnerTo.adapter = currenciesAdapter
+
+            tvFrom.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) convertCurrency()
+            }
+
+            btnConvert.setOnClickListener {
+                convertCurrency()
+            }
+
+            btnSwap.setOnClickListener {
+                viewModel.swap()
+            }
+
+            btnDetails.setOnClickListener {
+                findNavController().navigate(R.id.action_conversion_fragment_to_detail_fragment)
+            }
+
+            spinnerFrom.onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val selected = currenciesAdapter.getItem(position)
+                    Log.v("Selected", "from: " + selected.orEmpty())
+                    viewModel.setBaseCurrency(selected.orEmpty())
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
+
+            spinnerTo.onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val selected = currenciesAdapter.getItem(position)
+                    Log.v("Selected", "to: " + selected.orEmpty())
+                    viewModel.setTargetCurrency(selected.orEmpty())
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
         }
+    }
+
+    private fun convertCurrency() {
+        val amount = binding.tvFrom.text.toString().ifEmpty { "1" }
+        viewModel.convert(amount)
     }
 
     private fun initStateObservers() {
@@ -74,13 +122,16 @@ class CurrencyConversionFragment : Fragment() {
     }
 
     private fun handleCurrencyState(currencies: List<String>, baseCurrency: String, targetCurrency: String) {
+        currenciesAdapter.clear()
         currenciesAdapter.addAll(currencies)
+        if (currencies.isEmpty()) return
+
         with(binding) {
-            val baseCurrencyIndex = currencies.indexOf(baseCurrency)
+            val baseCurrencyIndex = if (baseCurrency.isNotEmpty()) currencies.indexOf(baseCurrency) else 0
             if (baseCurrencyIndex >= 0)
                 spinnerFrom.setSelection(baseCurrencyIndex)
 
-            val targetCurrencyIndex = currencies.indexOf(targetCurrency)
+            val targetCurrencyIndex = if (targetCurrency.isNotEmpty()) currencies.indexOf(targetCurrency) else 0
             if (targetCurrencyIndex >= 0)
                 spinnerTo.setSelection(targetCurrencyIndex)
         }
